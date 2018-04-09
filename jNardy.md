@@ -205,7 +205,7 @@ components:模版名称:传递数据
 ```
 var singleText = require('./single-text.js');
 
-var page1 = Controller.extend('page1',{
+var page1 = Controller.extend({
     tpl: tpl,
     data: function(){
         return {
@@ -239,7 +239,7 @@ single-text.html
 ```
 var singleText = require('./single-text.html');
 
-var page1 = Controller.extend('page1',{
+var page1 = Controller.extend({
     tpl: tpl,
     data: function(){
         return {
@@ -296,7 +296,7 @@ var name = this.route.params.name;
 + 用法：
   使用Controller构造器，创建一个扩展类。参数是一个包含组件选项的对象。
 ```
-var home = Controller.extend('home',{
+var home = Controller.extend({
     tpl: '<div>{{=it.name}}</div>',
     data: function(){
         return {
