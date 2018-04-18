@@ -45,8 +45,8 @@ jNardy是一套mvc框架，视图层使用dot模板编译器执行渲染，contr
 实例化控制器
 ```
 var c = new Controller({
-    ele: 'container',//绑定的DOM对象id
-    data: function(){
+    ele: '#container',//绑定的DOM对象，是css选择器
+    data: function(){
         return {
             name: 'jNardy'
         }
@@ -167,8 +167,6 @@ watch: {
 }
 ```
 > dot标签支持三层嵌套，重新渲染发生在dot模板预编译期，dot标签会被渲染成div标签
-## 表单绑定
-待增加。。。
 ## 组件
 组件定义
 
