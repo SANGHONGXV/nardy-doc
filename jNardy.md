@@ -16,6 +16,8 @@
 
 [1.8 数据模型](#数据模型)  
 
+[1.9 表单输入绑定](#表单输入绑定)
+
 [2 API](#api)  
 
 [2.1 Controller API](#controller-api)  
@@ -205,7 +207,7 @@ components:模版名称:传递数据
 ```
 var singleText = require('./single-text.js');
 
-var page1 = Controller.extend({
+var page1 = Controller.extend('page1',{
     tpl: tpl,
     data: function(){
         return {
@@ -239,7 +241,7 @@ single-text.html
 ```
 var singleText = require('./single-text.html');
 
-var page1 = Controller.extend({
+var page1 = Controller.extend('page1',{
     tpl: tpl,
     data: function(){
         return {
@@ -287,7 +289,86 @@ var name = this.route.params.name;
 ```
 
 ## 数据模型
-待优化。。。
+定义数据模型
+```
+var Model = require('../common/model');
+var Utils = require('../common/utils');
+
+var userModel = Utils.Class(Model,{
+
+    initialize:function(){
+        this.super.call(this);
+    }
+
+});
+
+module.exports = userModel;
+```
+
+使用数据模型
+```
+var UserModel = require('../../models/userModel');
+
+var userModel = new UserModel();
+
+    ...
+
+    mounted:function(){
+        userModel.get({url:'/api/user'},function(data){
+            ...
+        })
+
+    }
+    
+```
+
+数据校验
+```
+options: {
+    validate: true,
+    rules: {
+        name: {required:true},
+        sex: {required:true},
+        age: {required:true}
+    },
+    validShow: function(result){
+        console.log(result);
+    }
+},
+
+initialize:function(){
+    this.super.call(this,this.options);
+}
+
+```
+> 校验请求数据data，userModel.post({url:'/api/user'，data:{name:'bob'}},function(data){
+            ...
+        })  
+目前支持的校验规则如下：  
+required,email,tel,url,date,dateISO,number,digits,idcard,equalTo,contains,minlength,maxlength,rangelength,max,range ，详见validator.js
+
+## 表单输入绑定
+```
+<input type="text" data-modle="name" />
+```
+> 表单元素添加data-model属性，来绑定控制器中的数据对象，表单元素value值改变时，触发数据对象的观察函数。
+
+```
+...
+data:function(){
+    return {
+        name: 'fire'
+    }
+}
+watch:{
+    name: function(v,ov){
+        //input值变化，执行此方法
+    }
+},
+...
+
+```
+
 # API
 ## Controller API
 **Controller.extend(options)**
@@ -296,7 +377,7 @@ var name = this.route.params.name;
 + 用法：
   使用Controller构造器，创建一个扩展类。参数是一个包含组件选项的对象。
 ```
-var home = Controller.extend({
+var home = Controller.extend('home',{
     tpl: '<div>{{=it.name}}</div>',
     data: function(){
         return {
