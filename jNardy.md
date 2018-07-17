@@ -45,13 +45,13 @@ jNardy是一套mvc框架，视图层使用dot模板编译器执行渲染，contr
 实例化控制器
 ```
 var c = new Controller({
-    ele: '#container',//绑定的DOM对象，是css选择器
-    data: function(){
+    ele: 'container',//绑定的DOM对象id
+    data: function(){
         return {
             name: 'jNardy'
         }
     },
-    components: {//子组件
+    components: {//组件
         
     },
     watch: {//监听对象
@@ -84,66 +84,6 @@ c.set('name','jNardy');
 ## dot模板
 基本语法详见：[dot.js语法](http://olado.github.io/doT/index.html)  
 
-扩展语法：  
-```
-<!--
-如下dot扩展语法，用于模版预编译，主要适用于子模版、动态模版等场景
-关键词：
-def：预编译期上下文对象
-def.*：数据模型
-def.components: 子组件集合
-def.render: 编译组件函数
-另：
-it：编译期上下文对象
--->
-
-<!--
-components:模版名称:传递数据
--->
-{{#components:single-text#}}
-{{#components:single-text:{id\:'aax',data\:{content\:'hi'}}#}}
-
-<!--
-iterate:集合:值:索引:返回值
-def.render(模版,id,传递数据)：内置渲染函数，def.components：实例中定义的组件集合
--->
-{{#iterate:def.arr:value:index:
-'<div><span>值：'+value+'</span><span>&nbsp索引：'+index+'</span></div>'
-#}}
-
-{{#iterate:def.arr:value:index:
-def.render(def.components['single-text'])
-#}}
-
-{{#iterate:def.arr:value:index:
-def.render(def.components['single-text'],{data:{content:value}})
-#}}
-
-<!--
-condition:?条件1:返回值??条件2:返回值??:返回值
--->
-{{#condition:
-?def.count == 0:
-    '<div>count == 0</div>'
-??def.count == 1:
-    '<div>count == 1</div>'
-??:
-    '<div>count == 2</div>'
-#}}
-
-<!--
-script:脚本,return出返回值
--->
-{{#script:
-
-if(def.show){
-return '<h1>我是测试标题</h1>'
-}else{
-return ''
-}
-
-#}}
-```
 ## 区域渲染
 模板中使用dot标签，指定重新渲染的视图区域
 ```
@@ -167,20 +107,22 @@ watch: {
 }
 ```
 > dot标签支持三层嵌套，重新渲染发生在dot模板预编译期，dot标签会被渲染成div标签
+## 表单绑定
+待增加。。。
 ## 组件
 组件定义
 
 ```
 var tpl = require('./myComponent.html');
 
-var myComponent = Controller.component('myComponent',{
+var myComponent = Controller.extend({
     tpl: tpl,
     data: function(){
         return {
             name: ''
         }
     },
-    components: {//嵌套子组件
+    components: {//子组件
         
     },
     methods: {
@@ -194,12 +136,16 @@ var myComponent = Controller.component('myComponent',{
 组件使用  
 1.模板中引用
 ```
-<!--
-components:模版名称:传递数据
--->
-{{#components:single-text#}}
-//或者，带参数传递
-{{#components:single-text:{id\:'aax',data\:{content\:'hi'}}#}}
+/**
+* id:元素id，必需  is:模板名称，必需  title:传递的数据，非必须
+*/
+<template id="abc" is="menu" title="homepage"></template>
+
+//或者
+/**
+* pdata:传递的数据对象；it：指控制器的数据对象
+*/
+<template id="abc" is="menu" pdata="it.pdata"></template>
 ```
 2.控制器中引用  
 ```
@@ -232,7 +178,7 @@ single-text.html
 
 模板中引用，无法传递参数
 ```
-{{#components:single-text#}}
+<template id="abc" is="single-text"></template>
 
 ```
 控制器中引用
@@ -249,7 +195,7 @@ var page1 = Controller.extend('page1',{
     components: {
         'single-text': singleText
     },
-    mothod: {
+    mothods: {
         showContent: function(){
             alert(this.data.content);
         }
@@ -271,8 +217,6 @@ var router = new Router();
 router.route({path:'page1',component:page1});
 //子路由
 router.route({path:'page2',component:page2,children:[{path:'page2/child',component:childPage}]});
-router.initialize();
-
 ```
 
 路由传参  
@@ -375,7 +319,7 @@ watch:{
 + 用法：
   使用Controller构造器，创建一个扩展类。参数是一个包含组件选项的对象。
 ```
-var home = Controller.extend('home',{
+var home = Controller.extend({
     tpl: '<div>{{=it.name}}</div>',
     data: function(){
         return {
@@ -383,26 +327,9 @@ var home = Controller.extend('home',{
         }
     }
 })
-home.initialize().mount('home');
+home.initialize(null,{ele:'#home'});
 ```
-**Controller.component(id,options)**
-+ 参数：
-  + {string} id
-  + {Object} options
-+ 用法：  
-  注册全局组件，注册还会使用给定的id设置组件的名称
-```
-var myComponent = Controller.component('myComponent',{
-    tpl: '<div>{{=it.name}}</div>',
-    data: function(){
-        return {
-            name: 'bob'
-        }
-    },
-    methods: function(){
-        
-    }
-})
+
 ```
 ## 选项
 **ele**  
@@ -410,6 +337,10 @@ var myComponent = Controller.component('myComponent',{
 详细：  
 提供一个在页面上已存在的 DOM 元素作为 Controller 实例的挂载目标，可以是 CSS 选择器。
 
+**loadData**
+类型：string  
+详细：  
+URL，获取控制器初始化数据的接口地址
 
 **tpl**  
 类型：string  
@@ -421,11 +352,6 @@ var myComponent = Controller.component('myComponent',{
 详细：  
 Controller实例的数据对象。Controller将会递归将data的属性转换为getter/setter，从而让data的属性能够响应数据变化。  
 实例创建之后，可以通过 c.data 访问原始数据对象。
-
-**props**  
-类型：Array<string>  
-详细：  
-props 是数组，用于接收来自父组件的数据。
 
 **methods**  
 类型：{[key:string]:Function}  
@@ -454,21 +380,17 @@ methods 将被混入到 Controller 实例中。可以直接通过 c 实例访问
 类型：Object  
 详细：实例观察的数据对象。
 
-**c.children**  
+**c.chids**  
 类型：Array<string>  
 详细：子组件id集合
 
-**c.name**  
-类型：string  
-详细：实例名称
+**c.chhtml**  
+类型：{[id:string]:[string]}   
+详细：静态子组件html集合
 
 **c.events**  
 类型：Object  
 详细：事件响应全局名称集合
-
-**c.view**  
-类型：string  
-详细：模板渲染后html文本
 
 **c.set**
 类型：Function  
@@ -494,9 +416,9 @@ c.get('info.name','Tony');
 类型：Function  
 详细：重新渲染视图并挂载。参数id，指定区域重新渲染。
 
-**c.mount**  
+**c.rerenderChild**  
 类型：Function  
-详细：挂载实例视图到指定元素，参数是CSS选择器。
+详细：重新渲染子组件视图并挂载。参数id，指定子模版重新渲染。
 
 **c.destory**  
 类型：Function  
