@@ -1,4 +1,4 @@
-- [jNardy文档](jNardy.md) <span class="std-rec">[1.2]</span>
+- [jNardy文档](jNardy.md) <span class="std-rec">[1.3]</span>
 - [Javascript编码规范](javascript-style-guide.md) <span class="std-rec">[1.3]</span>
 - [Javascript编码规范 - ESNext补充篇](es-next-style-guide.md) <span class="std-rec">[draft]</span>
 - [HTML编码规范](html-style-guide.md) <span class="std-rec">[1.2]</span>
