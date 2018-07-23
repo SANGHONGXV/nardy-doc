@@ -1,5 +1,3 @@
-# jNardy文档
-
 [1 教程](#教程)  
 
 [1.1 安装](#安装)  
@@ -61,7 +59,10 @@ var c = new Controller({
             //name数据变化时，显示控制视图
         }
     },
-    methods: {
+    evtCallbacks: {//事件回调函数
+        
+    },
+    myMethod: function(){//自定义方法
         
     },
     mounted: function(){},//完成数据视图关联后执行的方法
@@ -126,7 +127,7 @@ var myComponent = Controller.extend({
     components: {//子组件
         
     },
-    methods: {
+    evtCallbacks: {//事件回调
         
     },
     mounted: function(){
@@ -196,8 +197,8 @@ var page1 = Controller.extend('page1',{
     components: {
         'single-text': singleText
     },
-    mothods: {
-        showContent: function(){
+    evtCallbacks: {
+        showContent: function(e){
             alert(this.data.content);
         }
     }
@@ -313,6 +314,15 @@ watch:{
 ```
 
 # API
+## 全局app
+**getApp()**  
+类型：Funtion  
+详细：  
+全局获取顶级控制器。
+```
+var app = getApp();
+```
+
 ## Controller API
 **Controller.extend(options)**
 + 参数：
@@ -329,8 +339,6 @@ var home = Controller.extend({
     }
 })
 home.initialize(null,{ele:'#home'});
-```
-
 ```
 ## 选项
 **ele**  
@@ -354,10 +362,10 @@ URL，获取控制器初始化数据的接口地址
 Controller实例的数据对象。Controller将会递归将data的属性转换为getter/setter，从而让data的属性能够响应数据变化。  
 实例创建之后，可以通过 c.data 访问原始数据对象。
 
-**methods**  
+**evtCallbacks**  
 类型：{[key:string]:Function}  
 详细：  
-methods 将被混入到 Controller 实例中。可以直接通过 c 实例访问这些方法，或者在dot模板中使用。方法中的 this 自动绑定为 Controller实例。
+evtCallbacks 被添加到 Controller 实例的evtCallbacks对象中。可以直接在dot模板中使用。如,<div onclick={{=it.**}}></div>
 
 **watch**  
 类型：{[key:string]:Function}   
@@ -392,6 +400,10 @@ methods 将被混入到 Controller 实例中。可以直接通过 c 实例访问
 **c.events**  
 类型：Object  
 详细：事件响应全局名称集合
+
+**c.evtCallbacks**  
+类型：Object  
+详细：事件响应函数集合
 
 **c.set**
 类型：Function  
